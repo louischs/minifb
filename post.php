@@ -12,19 +12,22 @@
 
 <body>
     <?php include('./includes/header.html');?>
-
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-4">
                 <div class="card">
-                    <form>
+                    <form method="POST" action="./index.php" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="txtArea">Commentaire</label>
                             <textarea class="form-control" id="txtArea" rows="1"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="fileControl">Média</label>
-                            <input type="file" class="form-control-file" id="fileControl" accept = "image/*" multiple>
+                            <input type="file" class="form-control-file" id="fileControl" accept="image/*" multiple>
+                            <input type="hidden" name="MAX_FILE_SIZE" value="3000000">
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" class="form-control-submit" id="submit" value="Poster">
                         </div>
                     </form>
 
