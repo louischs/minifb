@@ -1,17 +1,52 @@
 <?php
-if(isset($_FILES['fileControl']))
-{ 
-     $dossier = 'upload/';
-     $fichier = basename($_FILES['fileControl']['name']);
-     if(move_uploaded_file($_FILES['fileControl']['tmp_name'], $dossier . $fichier)) //Si la fonction renvoie TRUE, c'est que ça a fonctionné...
-     {
-          echo 'Upload effectué avec succès !';
-     }
-     else //Sinon (la fonction renvoie FALSE).
-     {
-          echo 'Echec de l\'upload !';
-     }
+$servername = "localhost";
+$username = "root";
+$password = "root";
+$dbname = "minifb";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+$sql = "INSERT INTO media (typeMedia, nomMedia, idPost) VALUES ";
+//Code pour ajouter les photos dans le dossier
+extract($_POST);
+$error=array();
+$extension=array("jpeg","jpg","JPG","png","gif");
+if(isset($_FILES["fileControl"])){
+    foreach($_FILES["fileControl"]["tmp_name"] as $key=>$tmp_name) {
+        $file_name=$_FILES["fileControl"]["name"][$key];
+        $file_tmp=$_FILES["fileControl"]["tmp_name"][$key];
+        $ext=pathinfo($file_name,PATHINFO_EXTENSION);
+        $strName = uniqid();
+        if(in_array($ext,$extension)) {
+            if(!file_exists("upload/".$file_name)) {
+                move_uploaded_file($file_tmp=$_FILES["fileControl"]["tmp_name"][$key],"upload/" . $strName . '.' . explode('.', $file_name)[count(explode('.', $file_name)) - 1]);
+                $sql .= "('".'.' . explode('.', $file_name)[count(explode('.', $file_name)) - 1]."', '".$strName."', 1),";
+                echo "b";
+            }
+            else {
+                $filename=basename($file_name,$ext);
+                $newFileName=$filename.time().".".$ext;
+                move_uploaded_file($file_tmp=$_FILES["fileControl"]["tmp_name"][$key],"upload/". $strName . '.' . explode('.', $file_name)[count(explode('.', $file_name)) - 1]);
+                $sql .= "('".'.' . explode('.', $file_name)[count(explode('.', $file_name)) - 1]."', '".$strName."', 1),";
+                
+         }
+        }
+        else {
+
+            array_push($error,"$file_name, ");
+        }
+    }
+}
+
+
+$sql = substr($sql, 0, -1);
+unlink($_FILES["fileControl"]);
+$conn->query($sql);
+
 ?>
 <!doctype html>
 
@@ -45,20 +80,26 @@ if(isset($_FILES['fileControl']))
 
                 </div>
             </div>
-            <div class="col-md-5">
-                <div class="card">
-                    <h1 class=" ml-3 text-left">Welcome</h1>
-                </div>
-                <div class="card mt-2">
-                    <img class="img-fluid"
-                            src="https://www.efswiss.ch/sitecore/__~/media/efcom/2019/ils/destinations-v2/ILSU_NewYork/1_Stage/NYCStageMobile.jpg">
-                        <div class="card-body">
-                            <h1 class="card-title">Social good</h1>
-                            <p class="card-text">1,200 followers, 83 Posts</p>
-                        </div>
-                            
-                </div>
-            </div>
+            <?php 
+           
+            $sql = "SELECT nomMedia, typeMedia FROM media ORDER BY creationDate DESC";
+            $result = $conn->query($sql);
+            if($result->num_rows > 0){
+                while($row = $result->fetch_assoc()){
+                    echo '<div class="col-md-5">
+                    <div class="card mt-2">
+                        <img class="img-fluid"
+                                src="./upload/'.$row["nomMedia"].$row["typeMedia"].'">
+                            <div class="card-body">
+                                <h1 class="card-title">Social good</h1>
+                                <p class="card-text">1,200 followers, 83 Posts</p>
+                            </div>
+                                
+                    </div>
+                </div>';
+                }
+            }
+            ?>
         </div>
     </div>
     <script src="js/scripts.js"></script>
