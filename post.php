@@ -23,7 +23,7 @@
                         </div>
                         <div class="form-group">
                             <label for="fileControl">Média</label>
-                            <input type="file" class="form-control-file" id="fileControl" name="fileControl[]" accept="image/*" multiple>
+                            <input type="file" class="form-control-file" id="fileControl" name="fileControl[]" accept="image/*, video/*, audio/*" multiple>
                             <input type="hidden" name="MAX_FILE_SIZE" value="3000000">
                         </div>
                         <div class="form-group">

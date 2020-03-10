@@ -15,16 +15,18 @@ $sql = "INSERT INTO media (typeMedia, nomMedia, idPost) VALUES ";
 extract($_POST);
 $error=array();
 $extension=array("jpeg","jpg","JPG","png","gif");
+$extensionV=array("mp4","webm","ogg");
+$extensionA=array("mp3","ogg");
 if(isset($_FILES["fileControl"])){
     foreach($_FILES["fileControl"]["tmp_name"] as $key=>$tmp_name) {
         $file_name=$_FILES["fileControl"]["name"][$key];
         $file_tmp=$_FILES["fileControl"]["tmp_name"][$key];
         $ext=pathinfo($file_name,PATHINFO_EXTENSION);
         $strName = uniqid();
-        if(in_array($ext,$extension)) {
+        if(in_array($ext,$extension) or in_array($ext , $extensionV) or in_array($ext, $extensionA)) {
             if(!file_exists("upload/".$file_name)) {
                 move_uploaded_file($file_tmp=$_FILES["fileControl"]["tmp_name"][$key],"upload/" . $strName . '.' . explode('.', $file_name)[count(explode('.', $file_name)) - 1]);
-                $sql .= "('".'.' . explode('.', $file_name)[count(explode('.', $file_name)) - 1]."', '".$strName."', 1),";
+                $sql .= "('" . explode('.', $file_name)[count(explode('.', $file_name)) - 1]."', '".$strName."', 1),";
                 echo "b";
             }
             else {
@@ -44,7 +46,7 @@ if(isset($_FILES["fileControl"])){
 
 
 $sql = substr($sql, 0, -1);
-unlink($_FILES["fileControl"]);
+
 $conn->query($sql);
 
 ?>
@@ -82,15 +84,23 @@ $conn->query($sql);
             </div>
             <?php 
            
-            $sql = "SELECT nomMedia, typeMedia FROM media ORDER BY creationDate DESC";
+            $sql = "SELECT idPost, nomMedia, typeMedia FROM media ORDER BY creationDate DESC";
             $result = $conn->query($sql);
             if($result->num_rows > 0){
                 while($row = $result->fetch_assoc()){
                     echo '<div class="col-md-5">
-                    <div class="card mt-2">
-                        <img class="img-fluid"
-                                src="./upload/'.$row["nomMedia"].$row["typeMedia"].'">
-                            <div class="card-body">
+                    <div class="card mt-2">';
+                    if(in_array( $row['typeMedia'], $extension)){
+                        echo '<img class="img-fluid"
+                                src="./upload/'.$row["nomMedia"].'.'.$row["typeMedia"].'">';
+                    }
+                    if(in_array( $row['typeMedia'], $extensionV)){
+                        echo '<video controls loop src="./upload/'.$row["nomMedia"].'.'.$row["typeMedia"].'">pp</video>';
+                    }
+                    if(in_array( $row['typeMedia'], $extensionA)){
+                        echo '<audio controls loop src="./upload/'.$row["nomMedia"].'.'.$row["typeMedia"].'">pp</audio>';
+                    }
+                            echo '<div class="card-body">
                                 <h1 class="card-title">Social good</h1>
                                 <p class="card-text">1,200 followers, 83 Posts</p>
                             </div>
